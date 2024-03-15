@@ -42,24 +42,26 @@ class Trainer:
                 self.buffer.push(obs, action, reward, obs_next)
                 obs = obs_next
                 flag = flag + done
-            # exploit
-            batch = self.buffer.make_batch(batch_size=self.batch_size)
-            state_batch = batch[0].to(self.device)
-            action_batch = batch[1].to(self.device)
-            reward_batch = batch[2].to(self.device)
-            next_state_batch = batch[3].to(self.device)
-            # train
-            td_difference = self.agent.compute_td_difference(
-                state=state_batch,
-                action=action_batch,
-                reward=reward_batch,
-                next_state=next_state_batch,
-            )
-            loss = td_difference.pow(2).mean()
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+                if len(self.buffer) > self.batch_size:
+                    # exploit
+                    batch = self.buffer.make_batch(batch_size=self.batch_size)
+                    state_batch = batch[0].to(self.device)
+                    action_batch = batch[1].to(self.device)
+                    reward_batch = batch[2].to(self.device)
+                    next_state_batch = batch[3].to(self.device)
+                    # train
+                    td_difference = self.agent.compute_td_difference(
+                        state=state_batch,
+                        action=action_batch,
+                        reward=reward_batch,
+                        next_state=next_state_batch,
+                    )
+                    loss = td_difference.pow(2).mean()
+                    loss.backward()
+                    optimizer.step()
+                    optimizer.zero_grad()
 
+        print("Learning has been completed")
         frames = []
         obs, _ = self.env.reset()
         total_reward = 0

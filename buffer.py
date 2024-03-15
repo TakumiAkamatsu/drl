@@ -11,6 +11,9 @@ class ReplayBuffer:
         self.capacity = capacity
         self.buffer = []
 
+    def __len__(self) -> int:
+        return len(self.buffer)
+
     def push(
         self,
         state: Tensor,

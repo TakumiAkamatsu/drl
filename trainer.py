@@ -69,13 +69,15 @@ class Trainer:
             # off the epsilon-greedy policy
             self.agent.epsilon = 0
             flag = False
+            cnt = 0
             while not flag:
                 frames.append(obs)
                 obs = torch.from_numpy(obs).float().to(self.device)
                 action = self.agent.act(obs)
                 obs, reward, done, _, _ = self.env.step(action=action)
                 total_reward += reward
-                flag += done
+                cnt += 1
+                flag += done + (cnt >= 10**4)
             print("Test has been completed")
             print(f"Total reward: {total_reward}")
 

@@ -1,0 +1,6 @@
+tqdm
+numpy
+torch
+gymnasium
+gymnasium[box2d]
+matplotlib

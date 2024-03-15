@@ -68,12 +68,16 @@ class Trainer:
         done = False
         # off the epsilon-greedy policy
         self.agent.epsilon = 0
-        while not done:
+        flag = False
+        while not flag:
             frames.append(obs)
             obs = torch.from_numpy(obs).float().to(self.device)
             action = self.agent.act(obs)
             obs, reward, done, _, _ = self.env.step(action)
             total_reward += reward
+            flag += done
+        print("Test has been completed")
+        print(f"Total reward: {total_reward}")
 
         # frames -> video by using ArtistAnimation
         fig = plt.figure()

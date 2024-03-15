@@ -25,7 +25,7 @@ class ReplayBuffer:
     def make_batch(
         self,
         batch_size: int,
-    ) -> tuple:
+    ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
         batch = random.sample(self.buffer, batch_size)
         state, action, reward, next_state = list(zip(*batch))
         # to Tensor

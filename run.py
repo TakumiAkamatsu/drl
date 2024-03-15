@@ -17,7 +17,7 @@ def main():
         batch_size=32,
         lr=1e-3,
     )
-    trainer.train(n_episodes=1000, n_explore=1000)
+    trainer.train(n_episodes=1000)
 
 
 if __name__ == '__main__':

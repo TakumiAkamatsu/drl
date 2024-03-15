@@ -28,19 +28,20 @@ class Trainer:
     def train(
         self,
         n_episodes: int,
-        n_explore: int,
     ) -> None:
         optimizer = optim.Adam(self.agent.parameters(), lr=self.lr)
         obs, _ = self.env.reset()
         obs = torch.from_numpy(obs).float().to(self.device)
         for _ in tqdm(range(n_episodes)):
             # explore
-            for _ in range(n_explore):
+            flag = False
+            while not flag:
                 action = self.agent.act(obs)
-                obs_next, reward, _, _, _ = self.env.step(action=action)
+                obs_next, reward, done, _, _ = self.env.step(action=action)
                 obs_next = torch.from_numpy(obs_next).float().to(self.device)
                 self.buffer.push(obs, action, reward, obs_next)
                 obs = obs_next
+                flag = flag + done
             # exploit
             batch = self.buffer.make_batch(batch_size=self.batch_size)
             state_batch = batch[0].to(self.device)

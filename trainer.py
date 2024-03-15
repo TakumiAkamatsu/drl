@@ -62,29 +62,29 @@ class Trainer:
                     optimizer.zero_grad()
 
         print("Learning has been completed")
-        frames = []
-        obs, _ = self.env.reset()
-        total_reward = 0
-        done = False
-        # off the epsilon-greedy policy
-        self.agent.epsilon = 0
-        flag = False
-        while not flag:
-            frames.append(obs)
-            obs = torch.from_numpy(obs).float().to(self.device)
-            action = self.agent.act(obs)
-            obs, reward, done, _, _ = self.env.step(action)
-            total_reward += reward
-            flag += done
-        print("Test has been completed")
-        print(f"Total reward: {total_reward}")
+        with torch.no_grad():
+            frames = []
+            obs, _ = self.env.reset()
+            total_reward = 0
+            # off the epsilon-greedy policy
+            self.agent.epsilon = 0
+            flag = False
+            while not flag:
+                frames.append(obs)
+                obs = torch.from_numpy(obs).float().to(self.device)
+                action = self.agent.act(obs)
+                obs, reward, done, _, _ = self.env.step(action=action)
+                total_reward += reward
+                flag += done
+            print("Test has been completed")
+            print(f"Total reward: {total_reward}")
 
-        # frames -> video by using ArtistAnimation
-        fig = plt.figure()
-        ims = []
-        for frame in frames:
-            im = plt.imshow(frame, animated=True)
-            ims.append([im])
-        ani = ArtistAnimation(fig, ims, interval=100, blit=True)
-        os.makedirs("output", exist_ok=True)
-        ani.save("output/video.gif", writer="pillow")
+            # frames -> video by using ArtistAnimation
+            fig = plt.figure()
+            ims = []
+            for frame in frames:
+                im = plt.imshow(frame, animated=True)
+                ims.append([im])
+            ani = ArtistAnimation(fig, ims, interval=100, blit=True)
+            os.makedirs("output", exist_ok=True)
+            ani.save("output/video.gif", writer="pillow")

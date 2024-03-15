@@ -32,13 +32,13 @@ class Trainer:
     ) -> None:
         optimizer = optim.Adam(self.agent.parameters(), lr=self.lr)
         obs, _ = self.env.reset()
-        obs = torch.from_numpy(obs).float()
+        obs = torch.from_numpy(obs).float().to(self.device)
         for _ in tqdm(range(n_episodes)):
             # explore
             for _ in range(n_explore):
                 action = self.agent.act(obs)
                 obs_next, reward, _, _, _ = self.env.step(action=action)
-                obs_next = torch.from_numpy(obs_next).float()
+                obs_next = torch.from_numpy(obs_next).float().to(self.device)
                 self.buffer.push(obs, action, reward, obs_next)
                 obs = obs_next
             # exploit

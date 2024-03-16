@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import ArtistAnimation
 import gymnasium as gym
 import torch
-import torch.optim as optim
 from tqdm import tqdm
 from dqn_agent import DQNAgent
 from buffer import ReplayBuffer
@@ -15,12 +14,10 @@ class Trainer:
         agent: DQNAgent,
         buffer: ReplayBuffer,
         batch_size: int,
-        lr: float,
     ) -> None:
         self.agent = agent
         self.buffer = buffer
         self.batch_size = batch_size
-        self.lr = lr
         self.env = gym.make("CarRacing-v2", render_mode="rgb_array", continuous=False)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.agent.to(self.device)
@@ -28,10 +25,11 @@ class Trainer:
     def train(
         self,
         n_episodes: int,
+        update_interval: int,
     ) -> None:
-        optimizer = optim.Adam(self.agent.parameters(), lr=self.lr)
         obs, _ = self.env.reset()
         obs = torch.from_numpy(obs).float().to(self.device)
+        update_cnt = 0
         for _ in tqdm(range(n_episodes)):
             # explore
             flag = False
@@ -57,9 +55,10 @@ class Trainer:
                         next_state=next_state_batch,
                     )
                     loss = td_difference.pow(2).mean()
-                    loss.backward()
-                    optimizer.step()
-                    optimizer.zero_grad()
+                    self.agent.update_agent(loss=loss)
+                    update_cnt += 1
+                    if update_cnt % update_interval == 0 and update_cnt > 0:
+                        self.agent.update_target()
 
         print("Learning has been completed")
         with torch.no_grad():

@@ -1,18 +1,16 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 from torch import Tensor
 
 
-class DQNAgent(nn.Module):
+class DQNNetwork(nn.Module):
     def __init__(
         self,
-        discount_factor: float,
         seed: int,
     ):
-        super(DQNAgent, self).__init__()
-        self.epsilon = 0.1
-        self.discount_factor = discount_factor
+        super(DQNNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
         self.conv1 = nn.Conv2d(
             in_channels=3,
@@ -50,7 +48,31 @@ class DQNAgent(nn.Module):
         out = torch.flatten(out, start_dim=1)
         out = self.out(out)
         return out
-    
+
+
+class DQNAgent(nn.Module):
+    def __init__(
+        self,
+        discount_factor: float,
+        seed: int,
+        lr: float,
+    ) -> None:
+        super().__init__()
+        self.epsilon = 0.1
+        self.discount_factor = discount_factor
+        self.lr = lr
+        self.agent = DQNNetwork(
+            seed=seed,
+        )
+        # set the targent network
+        self.target_network = DQNNetwork(
+            seed=seed,
+        )
+        self.target_network.load_state_dict(self.agent.state_dict())
+        self.target_network.eval()
+        # optimizer for the agent
+        self.optimizer = optim.Adam(self.agent.parameters(), lr=lr)
+
     def act(
         self,
         state: Tensor,
@@ -58,10 +80,10 @@ class DQNAgent(nn.Module):
         # epsilon-greedy
         if torch.rand(1) > self.epsilon:
             with torch.no_grad():
-                return torch.argmax(self.forward(state)).item()
+                return torch.argmax(self.agent.forward(state)).item()
         else:
             return torch.randint(low=0, high=5, size=(1,)).item()
-        
+
     def compute_td_difference(
         self,
         state: Tensor,
@@ -69,6 +91,18 @@ class DQNAgent(nn.Module):
         reward: Tensor,
         next_state: Tensor,
     ) -> Tensor:
-        td_target = reward + self.discount_factor * torch.max(self.forward(next_state))
-        td_current = self.forward(state)[range(0, action.numel()), action]
+        td_target = reward + self.discount_factor * torch.max(self.target_network.forward(next_state))
+        td_current = self.agent.forward(state)[range(0, action.numel()), action]
         return td_target - td_current
+    
+    def update_agent(
+        self,
+        loss: Tensor
+    ) -> None:
+        loss.backward()
+        self.optimizer.step()
+        self.optimizer.zero_grad()
+    
+    def update_target(self) -> None:
+        self.target_network.load_state_dict(self.agent.state_dict())
+        self.target_network.eval()

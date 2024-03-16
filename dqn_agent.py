@@ -91,7 +91,7 @@ class DQNAgent(nn.Module):
         reward: Tensor,
         next_state: Tensor,
     ) -> Tensor:
-        td_target = reward + self.discount_factor * torch.max(self.target_network.forward(next_state))
+        td_target = reward + self.discount_factor * torch.max(self.target_network.forward(next_state), dim=1).values
         td_current = self.agent.forward(state)[range(0, action.numel()), action]
         return td_target - td_current
     

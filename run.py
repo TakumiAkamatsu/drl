@@ -1,4 +1,5 @@
 import argparse
+
 from buffer import ReplayBuffer
 from dqn_agent import DQNAgent
 from trainer import Trainer
@@ -31,7 +32,7 @@ def main(
 if __name__ == '__main__':
     # cli arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--n_episodes", type=int, default=1)
+    parser.add_argument("--n_episodes", type=int, default=100000)
     parser.add_argument("--update_interval", type=int, default=100)
     parser.add_argument("--capacity", type=int, default=1000)
     parser.add_argument("--batch_size", type=int, default=32)

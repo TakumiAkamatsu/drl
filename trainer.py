@@ -65,7 +65,7 @@ class Trainer:
 
         print("Learning has been completed")
         # make a gif of the learned policy by using FuncAnimation
-        fig = plt.plot()
+        fig = plt.figure()
         obs, _ = self.env.reset()
         total_reward = 0
         # the function to update the figure

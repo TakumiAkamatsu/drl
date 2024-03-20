@@ -68,13 +68,15 @@ class Trainer:
         fig = plt.figure()
         obs, _ = self.env.reset()
         total_reward = 0
-        def update(frame):
-            plt.imshow(obs, animated=True)
-            obs = torch.from_numpy(obs).float().to(self.device)
-            obs_next, reward, _, _, _ = self.env.step(action=action)
-            reward = max(min(reward / self.clip_reward, 1), -1)
-            total_reward = total_reward + reward
-            obs = obs_next
+        # the function to update the figure
+        # obs: the current observation
+        def update(i):
+            nonlocal obs
+            nonlocal total_reward
+            action = self.agent.act(torch.from_numpy(obs).float().to(self.device))
+            obs, reward, _, _, _ = self.env.step(action=action)
+            total_reward += reward
+            plt.imshow(obs)
         
         ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
         print(f"total_reward: {total_reward}")

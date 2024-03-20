@@ -65,7 +65,7 @@ class Trainer:
 
         print("Learning has been completed")
         # make a gif of the learned policy by using FuncAnimation
-        fig = plt.figure()
+        fig, ax = plt.subplots()
         obs, _ = self.env.reset()
         total_reward = 0
         # the function to update the figure
@@ -76,7 +76,7 @@ class Trainer:
             action = self.agent.act(torch.from_numpy(obs).float().to(self.device))
             obs, reward, _, _, _ = self.env.step(action=action)
             total_reward += reward
-            plt.imshow(obs)
+            ax.imshow(obs)
         
         ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
         print(f"total_reward: {total_reward}")

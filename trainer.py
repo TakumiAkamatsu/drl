@@ -67,6 +67,7 @@ class Trainer:
         # make a gif of the learned policy by using FuncAnimation
         fig = plt.figure()
         obs, _ = self.env.reset()
+        im = plt.imshow(obs, animated=True)
         total_reward = 0
         # the function to update the figure
         # obs: the current observation
@@ -77,7 +78,8 @@ class Trainer:
             obs, reward, _, _, _ = self.env.step(action=action)
             total_reward += reward
             # obs : image of the current observation
-            plt.imshow(obs, animated=True)
+            im.set_array(obs)
+            return im
         
         ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
         print(f"total_reward: {total_reward}")

@@ -79,7 +79,7 @@ class Trainer:
             total_reward += reward
             # obs : image of the current observation
             im.set_array(obs)
-            return im
+            return im,
         
         ani = FuncAnimation(fig, update)
         print(f"total_reward: {total_reward}")

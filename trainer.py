@@ -21,6 +21,8 @@ class Trainer:
         self.env = gym.make("CarRacing-v2", render_mode="rgb_array", continuous=False)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.agent.to(self.device)
+        # the coefficient of reward-clipping
+        self.clip_reward = 1000
 
     def train(
         self,
@@ -36,6 +38,7 @@ class Trainer:
             while not flag:
                 action = self.agent.act(obs)
                 obs_next, reward, done, _, _ = self.env.step(action=action)
+                reward = max(min(reward / self.clip_reward, 1), -1)
                 obs_next = torch.from_numpy(obs_next).float().to(self.device)
                 self.buffer.push(obs, action, reward, obs_next)
                 obs = obs_next
@@ -74,6 +77,7 @@ class Trainer:
                 obs = torch.from_numpy(obs).float().to(self.device)
                 action = self.agent.act(obs)
                 obs, reward, done, _, _ = self.env.step(action=action)
+                reward = max(min(reward / self.clip_reward, 1), -1)
                 total_reward += reward
                 cnt += 1
                 flag += done + (cnt >= 10**4)

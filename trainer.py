@@ -76,7 +76,7 @@ class Trainer:
             total_reward = total_reward + reward
             obs = obs_next
         
-        print[f"total_reward: {total_reward}"]
         ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
+        print(f"total_reward: {total_reward}")
         os.makedirs("output", exist_ok=True)
         ani.save("output/video.gif", writer="pillow")

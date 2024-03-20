@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-from matplotlib.animation import ArtistAnimation
+from matplotlib.animation import FuncAnimation
 import gymnasium as gym
 import torch
 from tqdm import tqdm
@@ -64,32 +64,19 @@ class Trainer:
                         self.agent.update_target()
 
         print("Learning has been completed")
-        with torch.no_grad():
-            frames = []
-            obs, _ = self.env.reset()
-            total_reward = 0
-            # off the epsilon-greedy policy
-            self.agent.epsilon = 0
-            flag = False
-            cnt = 0
-            while not flag:
-                frames.append(obs)
-                obs = torch.from_numpy(obs).float().to(self.device)
-                action = self.agent.act(obs)
-                obs, reward, done, _, _ = self.env.step(action=action)
-                reward = max(min(reward / self.clip_reward, 1), -1)
-                total_reward += reward
-                cnt += 1
-                flag += done + (cnt >= 10**4)
-            print("Test has been completed")
-            print(f"Total reward: {total_reward}")
-
-            # frames -> video by using ArtistAnimation
-            fig = plt.figure()
-            ims = []
-            for frame in frames:
-                im = plt.imshow(frame, animated=True)
-                ims.append([im])
-            ani = ArtistAnimation(fig, ims, interval=100, blit=True)
-            os.makedirs("output", exist_ok=True)
-            ani.save("output/video.gif", writer="pillow")
+        # make a gif of the learned policy by using FuncAnimation
+        fig = plt.figure()
+        obs, _ = self.env.reset()
+        total_reward = 0
+        def update(frame):
+            plt.imshow(obs, animated=True)
+            obs = torch.from_numpy(obs).float().to(self.device)
+            obs_next, reward, _, _, _ = self.env.step(action=action)
+            reward = max(min(reward / self.clip_reward, 1), -1)
+            total_reward = total_reward + reward
+            obs = obs_next
+        
+        print[f"total_reward: {total_reward}"]
+        ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
+        os.makedirs("output", exist_ok=True)
+        ani.save("output/video.gif", writer="pillow")

@@ -81,7 +81,7 @@ class Trainer:
             im.set_array(obs)
             return im
         
-        ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
+        ani = FuncAnimation(fig, update)
         print(f"total_reward: {total_reward}")
         os.makedirs("output", exist_ok=True)
         ani.save("output/video.gif", writer="pillow")

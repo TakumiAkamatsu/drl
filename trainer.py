@@ -76,7 +76,7 @@ class Trainer:
             action = self.agent.act(torch.from_numpy(obs).float().to(self.device))
             obs, reward, _, _, _ = self.env.step(action=action)
             total_reward += reward
-            plt.imshow(obs)
+            return plt.imshow(obs)
         
         ani = FuncAnimation(fig, update, frames=range(10000), interval=100, blit=True)
         print(f"total_reward: {total_reward}")
